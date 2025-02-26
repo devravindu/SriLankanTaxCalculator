@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Lankan Tax Calculator</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Sri Lankan Tax Calculator</h1>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="taxCalculatorForm" class="needs-validation" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label">Earner Type</label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="earnerType" id="localEarner" value="local" checked>
+                                    <label class="btn btn-outline-primary" for="localEarner">Local (LKR)</label>
+                                    
+                                    <input type="radio" class="btn-check" name="earnerType" id="foreignEarner" value="foreign">
+                                    <label class="btn btn-outline-primary" for="foreignEarner">Foreign (USD)</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="monthlyIncome" class="form-label">Monthly Income</label>
+                                <div class="input-group">
+                                    <span class="input-group-text currency-symbol">LKR</span>
+                                    <input type="number" class="form-control" id="monthlyIncome" required min="0" step="0.01">
+                                    <div class="invalid-feedback">Please enter a valid monthly income.</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 exchange-rate-group" style="display: none;">
+                                <label for="exchangeRate" class="form-label">Exchange Rate (USD to LKR)</label>
+                                <input type="number" class="form-control" id="exchangeRate" value="320" min="0" step="0.01">
+                                <div class="form-text">Current rate: 1 USD = 320 LKR (default)</div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Calculate Tax</button>
+                        </form>
+
+                        <div id="resultSection" class="mt-4" style="display: none;">
+                            <h3 class="mb-3">Tax Calculation Results</h3>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th>Monthly Income:</th>
+                                            <td id="displayMonthlyIncome"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Annual Income:</th>
+                                            <td id="displayAnnualIncome"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Monthly Tax:</th>
+                                            <td id="displayMonthlyTax"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Annual Tax:</th>
+                                            <td id="displayAnnualTax"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <button id="generatePDF" class="btn btn-success w-100 mt-3">
+                                <i class="fa fa-file-pdf-o me-2"></i>Generate PDF Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/calculator.js') }}"></script>
+</body>
+</html>

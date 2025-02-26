@@ -1,0 +1,39 @@
+/* Additional custom styles */
+.card {
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.btn-group {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: var(--bs-primary);
+}
+
+.table th {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+/* Animation for results section */
+#resultSection {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+/* PDF button hover effect */
+#generatePDF:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
