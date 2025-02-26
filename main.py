@@ -61,27 +61,49 @@ def index():
 def calculate():
     try:
         data = request.get_json()
-        monthly_income = float(data['monthlyIncome'])
-        earner_type = data['earnerType']
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'})
+
+        monthly_income = float(data.get('monthlyIncome', 0))
+        if monthly_income < 0:
+            return jsonify({'success': False, 'error': 'Monthly income cannot be negative'})
+
+        earner_type = data.get('earnerType')
+        if earner_type not in ['local', 'foreign']:
+            return jsonify({'success': False, 'error': 'Invalid earner type'})
+
         exchange_rate = float(data.get('exchangeRate', 320))  # Default exchange rate
+        if exchange_rate <= 0:
+            return jsonify({'success': False, 'error': 'Exchange rate must be positive'})
 
         # Convert to LKR if foreign earner
         if earner_type == 'foreign':
-            monthly_income = monthly_income * exchange_rate
+            monthly_income_lkr = monthly_income * exchange_rate
+            annual_income = monthly_income_lkr * 12
+        else:
+            annual_income = monthly_income * 12
 
-        annual_income = monthly_income * 12
+        # Calculate tax
         total_tax, breakdown = calculate_tax(annual_income, earner_type == 'foreign')
         monthly_tax = total_tax / 12
 
-        return jsonify({
+        response_data = {
             'annualIncome': annual_income,
             'annualTax': total_tax,
             'monthlyTax': monthly_tax,
             'breakdown': breakdown,
             'success': True
-        })
+        }
+
+        app.logger.debug(f"Calculation successful: {response_data}")
+        return jsonify(response_data)
+
+    except ValueError as e:
+        app.logger.error(f"Value error in calculation: {str(e)}")
+        return jsonify({'success': False, 'error': 'Invalid numeric input'})
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        app.logger.error(f"Unexpected error in calculation: {str(e)}")
+        return jsonify({'success': False, 'error': 'An error occurred while calculating tax'})
 
 @app.route('/generate-pdf', methods=['POST'])
 def generate_pdf():
