@@ -13,45 +13,58 @@ app.secret_key = os.environ.get("SESSION_SECRET", "default-secret-key")
 
 # Tax brackets for local earners (LKR)
 LOCAL_TAX_BRACKETS = [
-    (1800000, 0),
-    (1000000, 0.06),
-    (500000, 0.18),
-    (500000, 0.24),
-    (float('inf'), 0.36)
+    (1800000, 0),      # First 1.8M: 0%
+    (1000000, 0.06),   # Next 1M: 6%
+    (500000, 0.18),    # Next 500K: 18%
+    (500000, 0.24),    # Next 500K: 24%
+    (float('inf'), 0.36)  # Remainder: 36%
 ]
 
 # Tax brackets for foreign earners (LKR)
 FOREIGN_TAX_BRACKETS = [
-    (1800000, 0),
-    (1000000, 0.06),
-    (float('inf'), 0.15)
+    (1800000, 0),      # First 1.8M: 0%
+    (1000000, 0.06),   # Next 1M: 6%
+    (float('inf'), 0.15)  # Remainder: 15%
 ]
 
 def calculate_tax(annual_income, is_foreign):
     """Calculate tax based on income and earner type."""
-    brackets = FOREIGN_TAX_BRACKETS if is_foreign else LOCAL_TAX_BRACKETS
-    total_tax = 0
-    remaining_income = annual_income
-    breakdown = []
+    try:
+        brackets = FOREIGN_TAX_BRACKETS if is_foreign else LOCAL_TAX_BRACKETS
+        total_tax = 0
+        remaining_income = annual_income
+        breakdown = []
+        cumulative_income = 0
 
-    for bracket_limit, rate in brackets:
-        if remaining_income <= 0:
-            break
+        for bracket_limit, rate in brackets:
+            if remaining_income <= 0:
+                break
 
-        taxable_amount = min(remaining_income, bracket_limit)
-        tax_for_bracket = taxable_amount * rate
+            # For the last bracket (inf), use remaining income
+            if bracket_limit == float('inf'):
+                taxable_amount = remaining_income
+            else:
+                taxable_amount = min(remaining_income, bracket_limit)
 
-        breakdown.append({
-            'bracket_limit': bracket_limit,
-            'rate': rate * 100,
-            'taxable_amount': taxable_amount,
-            'tax': tax_for_bracket
-        })
+            tax_for_bracket = taxable_amount * rate
 
-        total_tax += tax_for_bracket
-        remaining_income -= taxable_amount
+            breakdown.append({
+                'bracket_limit': bracket_limit if bracket_limit != float('inf') else cumulative_income + remaining_income,
+                'rate': rate * 100,
+                'taxable_amount': taxable_amount,
+                'tax': tax_for_bracket
+            })
 
-    return total_tax, breakdown
+            total_tax += tax_for_bracket
+            remaining_income -= taxable_amount
+            cumulative_income += taxable_amount
+
+        app.logger.debug(f"Tax calculation breakdown: {breakdown}")
+        return total_tax, breakdown
+
+    except Exception as e:
+        app.logger.error(f"Error in calculate_tax: {str(e)}")
+        raise
 
 @app.route('/')
 def index():
