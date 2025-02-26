@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, jsonify, send_file
 import weasyprint
 from tempfile import NamedTemporaryFile
 import logging
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -36,17 +37,17 @@ def calculate_tax(annual_income, is_foreign):
     for bracket_limit, rate in brackets:
         if remaining_income <= 0:
             break
-            
+
         taxable_amount = min(remaining_income, bracket_limit)
         tax_for_bracket = taxable_amount * rate
-        
+
         breakdown.append({
             'bracket_limit': bracket_limit,
             'rate': rate * 100,
             'taxable_amount': taxable_amount,
             'tax': tax_for_bracket
         })
-        
+
         total_tax += tax_for_bracket
         remaining_income -= taxable_amount
 
@@ -86,10 +87,11 @@ def calculate():
 def generate_pdf():
     try:
         data = request.get_json()
-        
+
         # Create HTML for PDF
         html = render_template(
             'pdf_template.html',
+            datetime=datetime,  # Pass datetime module to template
             earner_type=data['earnerType'],
             monthly_income=data['monthlyIncome'],
             annual_income=data['annualIncome'],
@@ -100,8 +102,10 @@ def generate_pdf():
         )
 
         # Generate PDF
+        pdf = weasyprint.HTML(string=html).write_pdf()
+
+        # Create a temporary file to store the PDF
         with NamedTemporaryFile(suffix='.pdf', delete=False) as temp_file:
-            pdf = weasyprint.HTML(string=html).write_pdf()
             temp_file.write(pdf)
             temp_file_path = temp_file.name
 
@@ -112,6 +116,7 @@ def generate_pdf():
             download_name='tax_calculation.pdf'
         )
     except Exception as e:
+        app.logger.error(f"PDF generation error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
