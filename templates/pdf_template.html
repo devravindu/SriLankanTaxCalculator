@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Tax Calculation Report</title>
+    <title>{{ _('Tax Calculation Report') }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,54 +42,54 @@
 </head>
 <body>
     <div class="header">
-        <h1>Tax Calculation Report</h1>
-        <p>Generated on {{ datetime.now().strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        <h1>{{ _('Tax Calculation Report') }}</h1>
+        <p>{{ _('Generated on') }} {{ datetime.now().strftime('%Y-%m-%d %H:%M:%S') }}</p>
     </div>
 
-    <h2>Summary</h2>
+    <h2>{{ _('Summary') }}</h2>
     <table class="summary-table">
         <tr>
-            <th>Earner Type:</th>
-            <td>{{ earner_type.title() }}</td>
+            <th>{{ _('Earner Type:') }}</th>
+            <td>{{ _(earner_type.title()) }}</td>
         </tr>
         {% if earner_type == 'foreign' %}
         <tr>
-            <th>Exchange Rate:</th>
+            <th>{{ _('Exchange Rate:') }}</th>
             <td>1 USD = {{ exchange_rate }} LKR</td>
         </tr>
         {% endif %}
         <tr>
-            <th>Monthly Income:</th>
+            <th>{{ _('Monthly Income:') }}</th>
             <td>{{ 'USD' if earner_type == 'foreign' else 'LKR' }} {{ '{:,.2f}'.format(monthly_income) }}</td>
         </tr>
         <tr>
-            <th>Annual Income:</th>
+            <th>{{ _('Annual Income:') }}</th>
             <td>LKR {{ '{:,.2f}'.format(annual_income) }}</td>
         </tr>
         <tr>
-            <th>Monthly Tax:</th>
+            <th>{{ _('Monthly Tax:') }}</th>
             <td>LKR {{ '{:,.2f}'.format(monthly_tax) }}</td>
         </tr>
         <tr>
-            <th>Annual Tax:</th>
+            <th>{{ _('Annual Tax:') }}</th>
             <td>LKR {{ '{:,.2f}'.format(annual_tax) }}</td>
         </tr>
     </table>
 
-    <h2>Tax Breakdown</h2>
+    <h2>{{ _('Tax Breakdown') }}</h2>
     <table class="breakdown-table">
         <thead>
             <tr>
-                <th>Income Bracket</th>
-                <th>Tax Rate</th>
-                <th>Taxable Amount</th>
-                <th>Tax</th>
+                <th>{{ _('Income Bracket') }}</th>
+                <th>{{ _('Tax Rate') }}</th>
+                <th>{{ _('Taxable Amount') }}</th>
+                <th>{{ _('Tax') }}</th>
             </tr>
         </thead>
         <tbody>
             {% for item in breakdown %}
             <tr>
-                <td>Up to LKR {{ '{:,.2f}'.format(item.bracket_limit) }}</td>
+                <td>{{ _('Up to') }} LKR {{ '{:,.2f}'.format(item.bracket_limit) }}</td>
                 <td>{{ '{:.1f}'.format(item.rate) }}%</td>
                 <td>LKR {{ '{:,.2f}'.format(item.taxable_amount) }}</td>
                 <td>LKR {{ '{:,.2f}'.format(item.tax) }}</td>
@@ -99,7 +99,7 @@
     </table>
 
     <div class="footer">
-        <p>This is a computer-generated document. No signature is required.</p>
+        <p>{{ _('This is a computer-generated document. No signature is required.') }}</p>
     </div>
 </body>
 </html>

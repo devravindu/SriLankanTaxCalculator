@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, session
+from flask_babel import Babel, gettext as _
 import weasyprint
 from tempfile import NamedTemporaryFile
 import logging
@@ -7,9 +8,47 @@ from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "default-secret-key")
+
+# Configure Babel
+babel = Babel()
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+app.config['LANGUAGES'] = {
+    'en': 'English',
+    'si': 'සිංහල',
+    'ta': 'தமிழ்'
+}
+babel.init_app(app)
+
+def get_locale():
+    try:
+        return session.get('language', 'en')
+    except Exception as e:
+        logger.error(f"Error in locale selection: {str(e)}")
+        return 'en'
+
+babel.init_app(app, locale_selector=get_locale)
+
+@app.route('/')
+def index():
+    try:
+        return render_template('index.html', languages=app.config['LANGUAGES'])
+    except Exception as e:
+        logger.error(f"Error rendering index: {str(e)}")
+        return "An error occurred", 500
+
+@app.route('/set-language/<language>')
+def set_language(language):
+    try:
+        if language in app.config['LANGUAGES']:
+            session['language'] = language
+            return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Error setting language: {str(e)}")
+    return jsonify({'success': False})
 
 # Tax brackets for local earners (LKR)
 LOCAL_TAX_BRACKETS = [
@@ -40,7 +79,6 @@ def calculate_tax(annual_income, is_foreign):
             if remaining_income <= 0:
                 break
 
-            # For the last bracket (inf), use remaining income
             if bracket_limit == float('inf'):
                 taxable_amount = remaining_income
             else:
@@ -66,37 +104,31 @@ def calculate_tax(annual_income, is_foreign):
         app.logger.error(f"Error in calculate_tax: {str(e)}")
         raise
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 @app.route('/calculate', methods=['POST'])
 def calculate():
     try:
         data = request.get_json()
         if not data:
-            return jsonify({'success': False, 'error': 'No data provided'})
+            return jsonify({'success': False, 'error': _('No data provided')})
 
         monthly_income = float(data.get('monthlyIncome', 0))
         if monthly_income < 0:
-            return jsonify({'success': False, 'error': 'Monthly income cannot be negative'})
+            return jsonify({'success': False, 'error': _('Monthly income cannot be negative')})
 
         earner_type = data.get('earnerType')
         if earner_type not in ['local', 'foreign']:
-            return jsonify({'success': False, 'error': 'Invalid earner type'})
+            return jsonify({'success': False, 'error': _('Invalid earner type')})
 
-        exchange_rate = float(data.get('exchangeRate', 320))  # Default exchange rate
+        exchange_rate = float(data.get('exchangeRate', 320))
         if exchange_rate <= 0:
-            return jsonify({'success': False, 'error': 'Exchange rate must be positive'})
+            return jsonify({'success': False, 'error': _('Exchange rate must be positive')})
 
-        # Convert to LKR if foreign earner
         if earner_type == 'foreign':
             monthly_income_lkr = monthly_income * exchange_rate
             annual_income = monthly_income_lkr * 12
         else:
             annual_income = monthly_income * 12
 
-        # Calculate tax
         total_tax, breakdown = calculate_tax(annual_income, earner_type == 'foreign')
         monthly_tax = total_tax / 12
 
@@ -113,20 +145,19 @@ def calculate():
 
     except ValueError as e:
         app.logger.error(f"Value error in calculation: {str(e)}")
-        return jsonify({'success': False, 'error': 'Invalid numeric input'})
+        return jsonify({'success': False, 'error': _('Invalid numeric input')})
     except Exception as e:
         app.logger.error(f"Unexpected error in calculation: {str(e)}")
-        return jsonify({'success': False, 'error': 'An error occurred while calculating tax'})
+        return jsonify({'success': False, 'error': _('An error occurred while calculating tax')})
 
 @app.route('/generate-pdf', methods=['POST'])
 def generate_pdf():
     try:
         data = request.get_json()
 
-        # Create HTML for PDF
         html = render_template(
             'pdf_template.html',
-            datetime=datetime,  # Pass datetime module to template
+            datetime=datetime,
             earner_type=data['earnerType'],
             monthly_income=data['monthlyIncome'],
             annual_income=data['annualIncome'],
@@ -136,10 +167,8 @@ def generate_pdf():
             exchange_rate=data.get('exchangeRate')
         )
 
-        # Generate PDF
         pdf = weasyprint.HTML(string=html).write_pdf()
 
-        # Create a temporary file to store the PDF
         with NamedTemporaryFile(suffix='.pdf', delete=False) as temp_file:
             temp_file.write(pdf)
             temp_file_path = temp_file.name

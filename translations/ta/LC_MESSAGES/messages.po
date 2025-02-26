@@ -1,0 +1,68 @@
+# Tamil translations for Sri Lankan Tax Calculator
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Sri Lankan Tax Calculator"
+msgstr "இலங்கை வரி கணிப்பான்"
+
+msgid "Earner Type"
+msgstr "வருமானம் பெறுபவரின் வகை"
+
+msgid "Local (LKR)"
+msgstr "உள்ளூர் (ரூ.)"
+
+msgid "Foreign (USD)"
+msgstr "வெளிநாட்டு (US$)"
+
+msgid "Monthly Income"
+msgstr "மாதாந்த வருமானம்"
+
+msgid "Please enter a valid monthly income."
+msgstr "சரியான மாதாந்த வருமானத்தை உள்ளிடவும்."
+
+msgid "Exchange Rate (USD to LKR)"
+msgstr "பரிமாற்ற விகிதம் (US$ முதல் ரூ. வரை)"
+
+msgid "Current rate: 1 USD = 320 LKR (default)"
+msgstr "தற்போதைய விகிதம்: 1 US$ = ரூ. 320 (இயல்புநிலை)"
+
+msgid "Calculate Tax"
+msgstr "வரியை கணக்கிடு"
+
+msgid "Tax Calculation Results"
+msgstr "வரி கணக்கீட்டு முடிவுகள்"
+
+msgid "Monthly Income:"
+msgstr "மாதாந்த வருமானம்:"
+
+msgid "Annual Income:"
+msgstr "வருடாந்த வருமானம்:"
+
+msgid "Monthly Tax:"
+msgstr "மாதாந்த வரி:"
+
+msgid "Annual Tax:"
+msgstr "வருடாந்த வரி:"
+
+msgid "Generate PDF Report"
+msgstr "PDF அறிக்கையை உருவாக்கு"
+
+msgid "No data provided"
+msgstr "தரவு வழங்கப்படவில்லை"
+
+msgid "Monthly income cannot be negative"
+msgstr "மாதாந்த வருமானம் எதிர்மறையாக இருக்க முடியாது"
+
+msgid "Invalid earner type"
+msgstr "தவறான வருமானம் பெறுபவர் வகை"
+
+msgid "Exchange rate must be positive"
+msgstr "பரிமாற்ற விகிதம் நேர்மறையாக இருக்க வேண்டும்"
+
+msgid "Invalid numeric input"
+msgstr "தவறான எண் உள்ளீடு"
+
+msgid "An error occurred while calculating tax"
+msgstr "வரி கணக்கிடும்போது பிழை ஏற்பட்டது"
